@@ -22,7 +22,8 @@ Init_content_type()
     rb_define_method(content_type, "content_type", content_type_content_type, 0);
 
     // instance attributes
-    rb_define_attr(content_type, "filepath", 1, 0);
+    rb_define_attr(content_type, "filepath",    1, 0);
+    rb_define_attr(content_type, "processed",   1, 0);
 }
 
 VALUE
@@ -36,7 +37,9 @@ content_type_initialize(VALUE self, VALUE path)
         rb_raise(rb_const_get(rb_cObject, rb_intern("ArgumentError")),
                 "invalid file");
 
-    rb_iv_set(self, "@filepath", path);
+    rb_iv_set(self, "@content_type", rb_str_new("", 0));
+    rb_iv_set(self, "@filepath",     path);
+    rb_iv_set(self, "@processed",    Qfalse);
 
     return self;
 }
@@ -44,9 +47,12 @@ content_type_initialize(VALUE self, VALUE path)
 VALUE
 content_type_content_type(VALUE self)
 {
-    VALUE            str;
+    VALUE            ct;
     struct magic_set *mh;
     const char       *mime;
+
+    if (rb_iv_get(self, "@processed"))
+        return rb_iv_get(self, "@content_type");
 
     if (!(mh = magic_open(MAGIC_OPTIONS)))
         magic_fail("open");
@@ -57,11 +63,12 @@ content_type_content_type(VALUE self)
     if (!(mime = magic_file(mh, RSTRING_PTR(rb_iv_get(self, "@filepath")))))
         magic_fail("file");
 
-    str = rb_str_new(mime, strlen(mime));
-
+    ct = rb_str_new(mime, strlen(mime));
+    rb_iv_set(self, "@content_type", ct);
+    rb_iv_set(self, "@processed", Qtrue);
     magic_close(mh);
 
-    return str;
+    return ct;
 }
 
 void

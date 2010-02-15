@@ -20,6 +20,13 @@ describe ContentType do
         ct = ContentType.new('poopstain')
       }.should raise_error ArgumentError
     end
+
+    it 'should memoize the content type' do
+      ct = ContentType.new(@img)
+      lambda {
+        ct.content_type.should == 'image/jpeg'
+      }.should change(ct, :processed).to(true)
+    end
   end
 
   context 'detecting mime type' do

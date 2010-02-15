@@ -63,4 +63,14 @@ describe ContentType do
       end
     end
   end
+
+  context 'when using the file class methods' do
+    it 'should have File.content_type(path)' do
+      File.content_type(@img).should == 'image/jpeg'
+    end
+
+    it 'should have File#content_type' do
+      File.open(@img).content_type.should == 'image/jpeg'
+    end
+  end
 end

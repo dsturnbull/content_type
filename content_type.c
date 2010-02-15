@@ -9,6 +9,10 @@ VALUE content_type = Qnil;
 VALUE content_type_initialize(VALUE self, VALUE path);
 VALUE content_type_content_type(VALUE self);
 
+VALUE file_content_type_wrap(VALUE self, VALUE path);
+VALUE file_content_type(VALUE self);
+VALUE file_singleton_content_type(VALUE self, VALUE path);
+
 void magic_fail(const char *error);
 
 void
@@ -24,6 +28,12 @@ Init_content_type()
     // instance attributes
     rb_define_attr(content_type, "filepath",    1, 0);
     rb_define_attr(content_type, "processed",   1, 0);
+
+    // hax on File
+    rb_define_method(rb_cFile,
+            "content_type", file_content_type, 0);
+    rb_define_singleton_method(rb_cFile,
+            "content_type", file_singleton_content_type, 1);
 }
 
 VALUE
@@ -69,6 +79,30 @@ content_type_content_type(VALUE self)
     magic_close(mh);
 
     return ct;
+}
+
+VALUE
+file_content_type_wrap(VALUE self, VALUE path)
+{
+    VALUE ct, mime, args[1];
+
+    SafeStringValue(path);
+    args[0] = path;
+    ct = rb_class_new_instance(1, args, content_type);
+
+    return rb_funcall(ct, rb_intern("content_type"), 0);
+}
+
+VALUE
+file_content_type(VALUE self)
+{
+    return file_content_type_wrap(self, rb_funcall(self, rb_intern("path"), 0));
+}
+
+VALUE
+file_singleton_content_type(VALUE self, VALUE path)
+{
+    return file_content_type_wrap(self, path);
 }
 
 void

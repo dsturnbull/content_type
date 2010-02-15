@@ -15,5 +15,5 @@ Spec::Rake::SpecTask.new(:spec) do |t|
 end
 
 task :clean do
-  `rm *.o *.so *.bundle 2>/dev/null`
+  `rm -r *.o *.so *.bundle conftest.dSYM 2>/dev/null`
 end

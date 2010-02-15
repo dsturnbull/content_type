@@ -1,6 +1,7 @@
 #include "ruby.h"
 #include <magic.h>
 #include <stdio.h>
+#include <sys/stat.h>
 
 #define MAGIC_OPTIONS MAGIC_SYMLINK | MAGIC_MIME_TYPE | MAGIC_PRESERVE_ATIME
 
@@ -27,14 +28,14 @@ Init_content_type()
 VALUE
 content_type_initialize(VALUE self, VALUE path)
 {
-    FILE *fp;
-
-    if (!(fp = fopen(RSTRING_PTR(path), "r")))
-        rb_raise(rb_const_get(rb_cObject, rb_intern("ArgumentError")),
-                "invalid file");
-    fclose(fp);
+    struct stat st;
 
     SafeStringValue(path);
+
+    if ((stat(RSTRING_PTR(path), &st)) != 0)
+        rb_raise(rb_const_get(rb_cObject, rb_intern("ArgumentError")),
+                "invalid file");
+
     rb_iv_set(self, "@filepath", path);
 
     return self;

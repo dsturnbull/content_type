@@ -1,0 +1,8 @@
+*.swo
+*.swp
+*.o
+*.so
+*.bundle
+*.dSYM
+mkmf.log
+Makefile

@@ -1,3 +1,4 @@
+require 'tempfile'
 require 'benchmark'
 require 'content_type'
 
@@ -71,6 +72,14 @@ describe ContentType do
 
     it 'should have File#content_type' do
       File.open(@img).content_type.should == 'image/jpeg'
+    end
+
+    it 'should make it into tempfile' do
+      t = Tempfile.new('hi')
+      t.content_type.should == 'application/x-empty'
+      t << File.read(@img)
+      t.content_type.should == 'image/jpeg'
+      File.unlink(t.path)
     end
   end
 end

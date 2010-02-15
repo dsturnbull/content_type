@@ -1,5 +1,6 @@
+require 'rubygems'
+require 'should_be_faster'
 require 'tempfile'
-require 'benchmark'
 require 'content_type'
 
 describe ContentType do
@@ -49,19 +50,16 @@ describe ContentType do
 
   context 'comparing with shelling out' do
     it 'should be much faster' do
-      Benchmark.bm(5) do |x|
-        x.report('shell') do
-          100.times do
-            `file -i #{@img}`
-          end
-        end
+      shell = lambda { `file -i #{@img}` }
+      ext   = lambda { ContentType.new(@img).content_type }
+      ext.should be_at_least(5).times.faster_than(shell)
+    end
 
-        x.report('ext') do
-          100.times do
-            ContentType.new(@img).content_type
-          end
-        end
-      end
+    it 'should slower to reinstantiate' do
+      @ct = ContentType.new(@img)
+      memo = lambda { @ct.content_type }
+      kgo  = lambda { ContentType.new(@img).content_type }
+      kgo.should be_at_least(5).times.slower_than(memo, :iterations => 1000)
     end
   end
 

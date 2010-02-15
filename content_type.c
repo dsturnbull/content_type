@@ -15,11 +15,11 @@ void
 Init_content_type()
 {
     // class definition
-	content_type = rb_define_class("ContentType", rb_cObject);
+    content_type = rb_define_class("ContentType", rb_cObject);
 
     // instance methods
-	rb_define_method(content_type, "initialize",   content_type_initialize, 1);
-	rb_define_method(content_type, "content_type", content_type_content_type, 0);
+    rb_define_method(content_type, "initialize",   content_type_initialize, 1);
+    rb_define_method(content_type, "content_type", content_type_content_type, 0);
 
     // instance attributes
     rb_define_attr(content_type, "filepath", 1, 0);

@@ -1,0 +1,42 @@
+|
+|  ____,____, _,  _,____,____,_,  _,____,
+| (-/  (-/  \(-|\ |(-|  (-|_,(-|\ |(-|
+|  _\__,_\__/,_| \|,_|,  _|__,_| \|,_|,
+| (    (     (     (    (    (     (
+|               ____,_  _,____,____,
+|              (-|  (-\_/(-|__|-|_,
+|               _|,   _|, _|   _|__,
+|              (     (   (    (
+|
+|       libmagic bindings by dsturnbull
++------------------------------------------
+
+SYNOPSIS
+     $ gem install content_type
+     irb> require 'content_type'
+     irb> File.content_type('file.pdf')             #=> "application/pdf"
+     irb> File.open('file.doc').content_type        #=> "application/msword"
+     irb> ContentType.new('file.jpg').content_type  #=> "image/jpeg"
+
+DESCRIPTION
+     ContentType is a simple C extension that binds to libmagic in order to
+     efficiently detect mime types of files.
+
+     Using the should_be_faster rspec extension,
+       ext.should be_at_least(5).times.faster_than(shell)
+
+     In addition to being fast, it is far more accurate than the current
+     practice of casing a regexp on file extensions.
+
+DIAGNOSTICS
+     ContentType raises "ArgumentError: invalid file" for all errors relating to
+     the file it's working on.
+
+     ContentType raises "RuntimeError: open", "RuntimeError: load" and
+     "RuntimeError: file" for libmagic errors.
+
+     Any file that cannot be identified is simply said to be "data".
+
+AVAILABILITY
+     http://github.com/dsturnbull/content_type
+

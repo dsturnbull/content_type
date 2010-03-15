@@ -7,3 +7,7 @@
 mkmf.log
 Makefile
 tags
+bin
+vendor
+*.gemspec
+pkg

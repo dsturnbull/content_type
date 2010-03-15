@@ -1,7 +1,7 @@
 require 'rubygems'
 require 'should_be_faster'
 require 'tempfile'
-require 'content_type'
+require 'ext/content_type'
 
 describe ContentType do
   before do

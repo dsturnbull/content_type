@@ -7,8 +7,10 @@ require 'vendor/gems/environment'
 task :default => [:clean, :make, :spec]
 
 task :make do
-  puts `ruby extconf.rb`
-  puts `make`
+  Dir.chdir 'ext' do
+    puts `ruby extconf.rb`
+    puts `make`
+  end
 end
 
 Spec::Rake::SpecTask.new(:spec) do |t|
@@ -31,5 +33,5 @@ Jeweler::Tasks.new do |s|
       File::content_type methods to determine mime type
   eod
   s.authors = ['David Turnbull']
-  s.files = ['Rakefile', 'content_type.c', 'extconf.rb']
+  s.files = ['Rakefile', 'ext/content_type.c', 'ext/extconf.rb']
 end

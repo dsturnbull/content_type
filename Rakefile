@@ -32,6 +32,7 @@ Jeweler::Tasks.new do |s|
       Provides ContentType#content_type, File#content_type and
       File::content_type methods to determine mime type
   eod
+  s.executables = []
   s.authors = ['David Turnbull']
   s.files = ['Rakefile', 'ext/content_type.c', 'ext/extconf.rb']
 end

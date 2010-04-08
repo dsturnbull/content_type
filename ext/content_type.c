@@ -18,6 +18,7 @@ VALUE file_singleton_content_type(VALUE self, VALUE path);
 VALUE string_content_type(VALUE self);
 
 bool content_type_file_ext(VALUE self, char *ext);
+void magic_fail(const char *error);
 
 // http://www.webdeveloper.com/forum/showthread.php?t=162526
 const char *content_type_ext_overrides[][2] = {
@@ -39,8 +40,6 @@ const char *content_type_ext_overrides[][2] = {
 	{ "xltm", "application/vnd.ms-excel.template.macroEnabled.12" },
 	{ "xltx", "application/vnd.openxmlformats-officedocument.spreadsheetml.template" },
 };
-	
-void magic_fail(const char *error);
 
 void
 Init_content_type()

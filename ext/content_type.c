@@ -93,20 +93,21 @@ content_type_file_ext(VALUE self, char *ext)
 	filepath = RSTRING_PTR(rb_iv_get(self, "@filepath"));
 
 	j = 0;
-	for (i = RSTRING_LEN(rb_iv_get(self, "@filepath")) - 1; i > 0 && j < MAX_EXT_LEN; i--) {
+	for (i = RSTRING_LEN(rb_iv_get(self, "@filepath")) - 1;
+			i > 0 && j < MAX_EXT_LEN; i--) {
 		if (filepath[i] == '.') {
 			for (k = 0; k < j/2 ; k++) {
 				t = ext[j - 1 - k];
 				ext[j - 1 - k] = ext[k];
 				ext[k] = t;
 			}
-			return ext;
+			return true;
 		}
 		ext[j] = filepath[i];
 		j++;
 	}
 
-	return NULL;
+	return false;
 }
 
 VALUE
@@ -115,16 +116,24 @@ content_type_content_type(VALUE self)
 	VALUE				ct;
 	struct magic_set	*mh;
 	const char			*mime;
+	char				*o_ext, *o_mime;
 	char				ext[MAX_EXT_LEN];	// TODO dynamicly sized
 	int					i;
 
 	if (content_type_file_ext(self, ext))
-		for (i = sizeof(content_type_ext_overrides) / sizeof(char *) / 2 - 1; i >= 0; i--)
-			if ((memcmp(ext, content_type_ext_overrides[i][0], strlen(content_type_ext_overrides[i][0]))) == 0) {
-				rb_iv_set(self, "@content_type", rb_str_new2(content_type_ext_overrides[i][1]));
+		for (i = sizeof(content_type_ext_overrides) / sizeof(char *) / 2 - 1;
+				i >= 0; i--) {
+
+			o_ext	= (char *)content_type_ext_overrides[i][0];
+			o_mime	= (char *)content_type_ext_overrides[i][1];
+
+			if ((memcmp(ext, o_ext, strlen(o_ext))) == 0) {
+				ct = rb_str_new2(o_mime);
+				rb_iv_set(self, "@content_type", ct);
 				rb_iv_set(self, "@processed", Qtrue);
-				return rb_iv_get(self, "@content_type");
+				return ct;
 			}
+		}
 
 	if (rb_iv_get(self, "@processed"))
 		return rb_iv_get(self, "@content_type");
@@ -149,7 +158,7 @@ content_type_content_type(VALUE self)
 VALUE
 file_content_type_wrap(VALUE self, VALUE path)
 {
-	VALUE ct, mime, args[1];
+	VALUE ct, args[1];
 
 	SafeStringValue(path);
 	args[0] = path;

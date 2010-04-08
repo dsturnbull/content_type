@@ -19,7 +19,7 @@ Spec::Rake::SpecTask.new(:spec) do |t|
 end
 
 task :clean do
-  `rm -r *.o *.so *.bundle conftest.dSYM 2>/dev/null`
+  `rm -r ext/*.o ext/*.so ext/*.bundle ext/conftest.dSYM 2>/dev/null`
 end
 
 require 'jeweler'

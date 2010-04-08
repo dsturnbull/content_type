@@ -8,6 +8,9 @@ describe ContentType do
     @img = 'spec/fixtures/grindewald.jpg'
     @pdf = 'spec/fixtures/pdftest.pdf'
     @lzm = 'spec/fixtures/compressed.jpg.lz'
+    @dcx = 'spec/fixtures/wordtest.docx'
+    @dot = 'spec/fixtures/.supercabanafuntimekgozzzzzzzzzzzzzzzzzzzz'
+    @pdf_with_charset = 'spec/fixtures/bash.pdf'
   end
 
   context 'initialising' do
@@ -31,6 +34,18 @@ describe ContentType do
     end
   end
 
+  context 'file ext overrides' do
+    it 'should detect docx files' do
+      ct = ContentType.new(@dcx)
+      ct.content_type.should == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+    end
+
+    it 'should handle dot files' do
+      ct = ContentType.new(@dot)
+      ct.content_type.should == 'text/plain'
+    end
+  end
+
   context 'detecting mime type' do
     it 'should detect images' do
       ct = ContentType.new(@img)
@@ -39,6 +54,11 @@ describe ContentType do
 
     it 'should detect pdfs' do
       ct = ContentType.new(@pdf)
+      ct.content_type.should == 'application/pdf'
+    end
+
+    it 'should detect mime types with charsets by ignoring the charset' do
+      ct = ContentType.new(@pdf_with_charset)
       ct.content_type.should == 'application/pdf'
     end
 

@@ -1,8 +1,8 @@
+require 'vendor/gems/environment'
+
 require 'rake'
 require 'spec'
 require 'spec/rake/spectask'
-
-require 'vendor/gems/environment'
 
 task :default => [:clean, :make, :spec]
 

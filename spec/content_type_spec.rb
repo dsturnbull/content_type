@@ -37,7 +37,8 @@ describe ContentType do
   context 'file ext overrides' do
     it 'should detect docx files' do
       ct = ContentType.new(@dcx)
-      ct.content_type.should == 'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+      ct.content_type.should ==
+        'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
     end
 
     it 'should handle dot files' do
@@ -101,7 +102,7 @@ describe ContentType do
     end
   end
 
-  context 'as a string' do
+  context 'on strings' do
     it 'should have String#content_type' do
       str = File.read(@img)
       str.content_type.should == 'image/jpeg'

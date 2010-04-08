@@ -173,6 +173,26 @@ file_singleton_content_type(VALUE self, VALUE path)
 VALUE
 string_content_type(VALUE self)
 {
+	struct magic_set	*mh;
+	const char			*mime;
+	VALUE				str;
+	VALUE				ct;
+
+	str = rb_funcall(self, rb_intern("to_s"), 0);
+
+	if (!(mh = magic_open(MAGIC_OPTIONS)))
+		magic_fail("open");
+
+	if ((magic_load(mh, NULL)) != 0)
+		magic_fail("load");
+
+	if (!(mime = magic_buffer(mh, RSTRING_PTR(str), RSTRING_LEN(str))))
+		magic_fail("buffer");
+
+	ct = rb_str_new(mime, strlen(mime));
+	magic_close(mh);
+
+	return ct;
 }
 
 void

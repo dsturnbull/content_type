@@ -1,4 +1,5 @@
 require 'mkmf'
+RbConfig::MAKEFILE_CONFIG['CC'] = ENV['CC'] if ENV['CC']
 
 extension_name = 'content_type'
 dir_config(extension_name)

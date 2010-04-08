@@ -15,6 +15,8 @@ VALUE file_content_type_wrap(VALUE self, VALUE path);
 VALUE file_content_type(VALUE self);
 VALUE file_singleton_content_type(VALUE self, VALUE path);
 
+VALUE string_content_type(VALUE self);
+
 bool content_type_file_ext(VALUE self, char *ext);
 
 // http://www.webdeveloper.com/forum/showthread.php?t=162526
@@ -43,40 +45,42 @@ void magic_fail(const char *error);
 void
 Init_content_type()
 {
-    // class definition
-    content_type = rb_define_class("ContentType", rb_cObject);
+	// class definition
+	content_type = rb_define_class("ContentType", rb_cObject);
 
-    // instance methods
-    rb_define_method(content_type, "initialize",   content_type_initialize, 1);
-    rb_define_method(content_type, "content_type", content_type_content_type, 0);
+	// instance methods
+	rb_define_method(content_type, "initialize",   content_type_initialize, 1);
+	rb_define_method(content_type, "content_type", content_type_content_type, 0);
 
-    // instance attributes
-    rb_define_attr(content_type, "filepath",    1, 0);
-    rb_define_attr(content_type, "processed",   1, 0);
+	// instance attributes
+	rb_define_attr(content_type, "filepath",	1, 0);
+	rb_define_attr(content_type, "processed",   1, 0);
 
-    // hax on File
-    rb_define_method(rb_cFile,
-            "content_type", file_content_type, 0);
-    rb_define_singleton_method(rb_cFile,
-            "content_type", file_singleton_content_type, 1);
+	// hax on File
+	rb_define_method(rb_cFile, "content_type", file_content_type, 0);
+	rb_define_singleton_method(rb_cFile,
+			"content_type", file_singleton_content_type, 1);
+
+	// hax on String
+	rb_define_method(rb_cString, "content_type", string_content_type, 0);
 }
 
 VALUE
 content_type_initialize(VALUE self, VALUE path)
 {
-    struct stat st;
+	struct stat st;
 
-    SafeStringValue(path);
+	SafeStringValue(path);
 
-    if ((stat(RSTRING_PTR(path), &st)) != 0)
-        rb_raise(rb_const_get(rb_cObject, rb_intern("ArgumentError")),
-                "invalid file");
+	if ((stat(RSTRING_PTR(path), &st)) != 0)
+		rb_raise(rb_const_get(rb_cObject, rb_intern("ArgumentError")),
+				"invalid file");
 
-    rb_iv_set(self, "@content_type", rb_str_new("", 0));
-    rb_iv_set(self, "@filepath",     path);
-    rb_iv_set(self, "@processed",    Qfalse);
+	rb_iv_set(self, "@content_type", rb_str_new("", 0));
+	rb_iv_set(self, "@filepath",	 path);
+	rb_iv_set(self, "@processed",	Qfalse);
 
-    return self;
+	return self;
 }
 
 bool
@@ -108,9 +112,9 @@ content_type_file_ext(VALUE self, char *ext)
 VALUE
 content_type_content_type(VALUE self)
 {
-    VALUE				ct;
-    struct magic_set	*mh;
-    const char			*mime;
+	VALUE				ct;
+	struct magic_set	*mh;
+	const char			*mime;
 	char				ext[MAX_EXT_LEN];	// TODO dynamicly sized
 	int					i;
 
@@ -122,57 +126,62 @@ content_type_content_type(VALUE self)
 				return rb_iv_get(self, "@content_type");
 			}
 
-    if (rb_iv_get(self, "@processed"))
-        return rb_iv_get(self, "@content_type");
+	if (rb_iv_get(self, "@processed"))
+		return rb_iv_get(self, "@content_type");
 
-    if (!(mh = magic_open(MAGIC_OPTIONS)))
-        magic_fail("open");
+	if (!(mh = magic_open(MAGIC_OPTIONS)))
+		magic_fail("open");
 
-    if ((magic_load(mh, NULL)) != 0)
-        magic_fail("load");
+	if ((magic_load(mh, NULL)) != 0)
+		magic_fail("load");
 
-    if (!(mime = magic_file(mh, RSTRING_PTR(rb_iv_get(self, "@filepath")))))
-        magic_fail("file");
+	if (!(mime = magic_file(mh, RSTRING_PTR(rb_iv_get(self, "@filepath")))))
+		magic_fail("file");
 
-    ct = rb_str_new(mime, strlen(mime));
-    rb_iv_set(self, "@content_type", ct);
-    rb_iv_set(self, "@processed", Qtrue);
-    magic_close(mh);
+	ct = rb_str_new(mime, strlen(mime));
+	rb_iv_set(self, "@content_type", ct);
+	rb_iv_set(self, "@processed", Qtrue);
+	magic_close(mh);
 
-    return ct;
+	return ct;
 }
 
 VALUE
 file_content_type_wrap(VALUE self, VALUE path)
 {
-    VALUE ct, mime, args[1];
+	VALUE ct, mime, args[1];
 
-    SafeStringValue(path);
-    args[0] = path;
-    ct = rb_class_new_instance(1, args, content_type);
+	SafeStringValue(path);
+	args[0] = path;
+	ct = rb_class_new_instance(1, args, content_type);
 
-    return rb_funcall(ct, rb_intern("content_type"), 0);
+	return rb_funcall(ct, rb_intern("content_type"), 0);
 }
 
 VALUE
 file_content_type(VALUE self)
 {
-    return file_content_type_wrap(self, rb_funcall(self, rb_intern("path"), 0));
+	return file_content_type_wrap(self, rb_funcall(self, rb_intern("path"), 0));
 }
 
 VALUE
 file_singleton_content_type(VALUE self, VALUE path)
 {
-    return file_content_type_wrap(self, path);
+	return file_content_type_wrap(self, path);
+}
+
+VALUE
+string_content_type(VALUE self)
+{
 }
 
 void
 magic_fail(const char *error)
 {
-    const char  *format = "magic_%s() error";
-    char        *error_message;
+	const char  *format = "magic_%s() error";
+	char		*error_message;
 
-    error_message = malloc(sizeof(char *) * (strlen(format) + strlen(error)));
-    sprintf((char *)error_message, format, error);
-    rb_raise(rb_const_get(rb_cObject, rb_intern("RuntimeError")), error_message);
+	error_message = malloc(sizeof(char *) * (strlen(format) + strlen(error)));
+	sprintf((char *)error_message, format, error);
+	rb_raise(rb_const_get(rb_cObject, rb_intern("RuntimeError")), error_message);
 }

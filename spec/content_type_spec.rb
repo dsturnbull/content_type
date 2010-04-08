@@ -100,4 +100,11 @@ describe ContentType do
       File.unlink(t.path)
     end
   end
+
+  context 'as a string' do
+    it 'should have String#content_type' do
+      str = File.read(@img)
+      str.content_type.should == 'image/jpeg'
+    end
+  end
 end

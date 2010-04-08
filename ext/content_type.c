@@ -15,6 +15,8 @@ VALUE file_content_type_wrap(VALUE self, VALUE path);
 VALUE file_content_type(VALUE self);
 VALUE file_singleton_content_type(VALUE self, VALUE path);
 
+bool content_type_file_ext(VALUE self, char *ext);
+
 // http://www.webdeveloper.com/forum/showthread.php?t=162526
 const char *content_type_ext_overrides[][2] = {
 	{ "docm", "application/vnd.ms-word.document.macroEnabled.12" },

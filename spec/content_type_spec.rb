@@ -107,5 +107,9 @@ describe ContentType do
       str = File.read(@img)
       str.content_type.should == 'image/jpeg'
     end
+
+    it 'should work on empty strings' do
+      ''.content_type.should == 'application/x-empty'
+    end
   end
 end

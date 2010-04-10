@@ -29,8 +29,8 @@ Jeweler::Tasks.new do |s|
   s.email = 'dsturnbull@me.com'
   s.homepage = 'http://github.com/dsturnbull/content_type'
   s.description =<<-eod
-      Provides ContentType#content_type, File#content_type and
-      File::content_type methods to determine mime type
+      Provides ContentType#content_type, File#content_type, File::content_type
+      and String#content_type methods to determine mime type
   eod
   s.executables = []
   s.authors = ['David Turnbull']

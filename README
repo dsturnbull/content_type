@@ -16,6 +16,7 @@ SYNOPSIS
      irb> require 'content_type'
      irb> File.content_type('file.pdf')             #=> "application/pdf"
      irb> File.open('file.doc').content_type        #=> "application/msword"
+     irb> "hi".content_type                         #=> "text/plain"
      irb> ContentType.new('file.jpg').content_type  #=> "image/jpeg"
 
 DESCRIPTION

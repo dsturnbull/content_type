@@ -4,19 +4,27 @@
 #include <sys/stat.h>
 #include <stdbool.h>
 
+// see libmagic(3)
 #define MAGIC_OPTIONS MAGIC_SYMLINK | MAGIC_MIME_TYPE | MAGIC_PRESERVE_ATIME
+
+// presume file extensions are at max 16 chars. this is fine for now since
+// only microsoft crap is overridden.
 #define MAX_EXT_LEN 16
 
+// ContentType prototypes
 VALUE content_type = Qnil;
 VALUE content_type_initialize(VALUE self, VALUE path);
 VALUE content_type_content_type(VALUE self);
 
+// File prototypes
 VALUE file_content_type_wrap(VALUE self, VALUE path);
 VALUE file_content_type(VALUE self);
 VALUE file_singleton_content_type(VALUE self, VALUE path);
 
+// String prototypes
 VALUE string_content_type(VALUE self);
 
+// internal prototypes
 bool content_type_file_ext(VALUE self, char *ext);
 void magic_fail(const char *error);
 
@@ -41,6 +49,7 @@ const char *content_type_ext_overrides[][2] = {
 	{ "xltx", "application/vnd.openxmlformats-officedocument.spreadsheetml.template" },
 };
 
+// Init_content_type - initialize the extension
 void
 Init_content_type()
 {
@@ -64,6 +73,11 @@ Init_content_type()
 	rb_define_method(rb_cString, "content_type", string_content_type, 0);
 }
 
+// content_type_initialize - initialize the object and check file path exists
+//
+// iv @content_type, @filepath and @processed are available in all variations
+// because each implementation creates a ContentType obj through here
+// (except String#content_type)
 VALUE
 content_type_initialize(VALUE self, VALUE path)
 {
@@ -75,13 +89,14 @@ content_type_initialize(VALUE self, VALUE path)
 		rb_raise(rb_const_get(rb_cObject, rb_intern("ArgumentError")),
 				"invalid file");
 
-	rb_iv_set(self, "@content_type", rb_str_new("", 0));
-	rb_iv_set(self, "@filepath",	 path);
-	rb_iv_set(self, "@processed",	Qfalse);
+	rb_iv_set(self, "@content_type",	rb_str_new("", 0));
+	rb_iv_set(self, "@filepath",		path);
+	rb_iv_set(self, "@processed",		Qfalse);
 
 	return self;
 }
 
+// content_type_file_ext - return the file extension of the file
 bool
 content_type_file_ext(VALUE self, char *ext)
 {
@@ -91,6 +106,8 @@ content_type_file_ext(VALUE self, char *ext)
 
 	filepath = RSTRING_PTR(rb_iv_get(self, "@filepath"));
 
+	// go back until the first . from the end of the string
+	// then reverse the array
 	j = 0;
 	for (i = RSTRING_LEN(rb_iv_get(self, "@filepath")) - 1;
 			i > 0 && j < MAX_EXT_LEN; i--) {
@@ -109,6 +126,7 @@ content_type_file_ext(VALUE self, char *ext)
 	return false;
 }
 
+// content_type_content_type - check for hardcoded extensions or use libmagic
 VALUE
 content_type_content_type(VALUE self)
 {
@@ -119,6 +137,7 @@ content_type_content_type(VALUE self)
 	char				ext[MAX_EXT_LEN];	// TODO dynamicly sized
 	int					i;
 
+	// check for hardcoded extension overrides first
 	if (content_type_file_ext(self, ext))
 		for (i = sizeof(content_type_ext_overrides) / sizeof(char *) / 2 - 1;
 				i >= 0; i--) {
@@ -128,12 +147,14 @@ content_type_content_type(VALUE self)
 
 			if ((memcmp(ext, o_ext, strlen(o_ext))) == 0) {
 				ct = rb_str_new2(o_mime);
+				// memoize
 				rb_iv_set(self, "@content_type", ct);
 				rb_iv_set(self, "@processed", Qtrue);
 				return ct;
 			}
 		}
 
+	// otherwise use libmagic to get the mime type
 	if (rb_iv_get(self, "@processed"))
 		return rb_iv_get(self, "@content_type");
 
@@ -147,6 +168,8 @@ content_type_content_type(VALUE self)
 		magic_fail("file");
 
 	ct = rb_str_new(mime, strlen(mime));
+
+	// memoize
 	rb_iv_set(self, "@content_type", ct);
 	rb_iv_set(self, "@processed", Qtrue);
 	magic_close(mh);
@@ -154,6 +177,7 @@ content_type_content_type(VALUE self)
 	return ct;
 }
 
+// file_content_type_wrap - pass file path into ContentType#content_type
 VALUE
 file_content_type_wrap(VALUE self, VALUE path)
 {
@@ -166,18 +190,21 @@ file_content_type_wrap(VALUE self, VALUE path)
 	return rb_funcall(ct, rb_intern("content_type"), 0);
 }
 
+// file_content_type - provide File#content_type
 VALUE
 file_content_type(VALUE self)
 {
 	return file_content_type_wrap(self, rb_funcall(self, rb_intern("path"), 0));
 }
 
+// file_singleton_content_type - provide File.content_type
 VALUE
 file_singleton_content_type(VALUE self, VALUE path)
 {
 	return file_content_type_wrap(self, path);
 }
 
+// string_content_type - pass the string as a buffer to libmagic
 VALUE
 string_content_type(VALUE self)
 {
@@ -203,6 +230,7 @@ string_content_type(VALUE self)
 	return ct;
 }
 
+// magic_fail - raise exceptions
 void
 magic_fail(const char *error)
 {
@@ -213,3 +241,4 @@ magic_fail(const char *error)
 	sprintf((char *)error_message, format, error);
 	rb_raise(rb_const_get(rb_cObject, rb_intern("RuntimeError")), error_message);
 }
+

@@ -8,6 +8,7 @@ describe ContentType do
     @img = 'spec/fixtures/grindewald.jpg'
     @pdf = 'spec/fixtures/pdftest.pdf'
     @lzm = 'spec/fixtures/compressed.jpg.lz'
+    @doc = 'spec/fixtures/wordtest.doc'
     @dcx = 'spec/fixtures/wordtest.docx'
     @dot = 'spec/fixtures/.supercabanafuntimekgozzzzzzzzzzzzzzzzzzzz'
     @pdf_with_charset = 'spec/fixtures/bash.pdf'
@@ -66,6 +67,11 @@ describe ContentType do
     it 'should detect lzma files' do
       ct = ContentType.new(@lzm)
       ct.content_type.should == 'application/x-lzip'
+    end
+
+    it 'should detect doc files' do
+      ct = ContentType.new(@doc)
+      ct.content_type.should == 'application/msword'
     end
   end
 

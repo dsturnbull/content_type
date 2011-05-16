@@ -1,8 +1,7 @@
-require 'vendor/gems/environment'
-
 require 'rake'
-require 'spec'
-require 'spec/rake/spectask'
+require 'jeweler'
+require 'rspec'
+require 'rspec/core/rake_task'
 
 task :default => [:clean, :make, :spec]
 
@@ -13,16 +12,15 @@ task :make do
   end
 end
 
-Spec::Rake::SpecTask.new(:spec) do |t|
-  t.spec_opts = %w(-fs -c)
-  t.spec_files = FileList['spec/*_spec.rb']
+RSpec::Core::RakeTask.new(:spec) do |t|
+  t.rspec_opts = %w(-fs -c)
+  t.pattern = FileList['spec/*_spec.rb']
 end
 
 task :clean do
   `rm -r ext/*.o ext/*.so ext/*.bundle ext/conftest.dSYM 2>/dev/null`
 end
 
-require 'jeweler'
 Jeweler::Tasks.new do |s|
   s.name = 'content_type'
   s.summary = 'libmagic bindings to quickly determine content type of files'

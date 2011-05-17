@@ -5,7 +5,7 @@ extension_name = 'content_type'
 dir_config(extension_name)
 
 brew_magic = Dir['/usr/local/Cellar/libmagic/**/magic.h']
-if brew_magic
+unless brew_magic.empty?
   brew_dir = File.dirname(File.dirname(brew_magic[0]))
   find_header('magic.h', File.join(brew_dir, 'include'))
   find_library('magic', 'magic_open', File.join(brew_dir, 'lib'))

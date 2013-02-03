@@ -102,7 +102,8 @@ content_type_file_ext(VALUE self, char *ext)
 {
 	char	*filepath;
 	char	t;
-	int		i, j, k;
+	long	i;
+	int		j, k;
 
 	filepath = RSTRING_PTR(rb_iv_get(self, "@filepath"));
 
@@ -183,6 +184,7 @@ file_content_type_wrap(VALUE self, VALUE path)
 {
 	VALUE ct, args[1];
 
+	(void)self;
 	SafeStringValue(path);
 	args[0] = path;
 	ct = rb_class_new_instance(1, args, content_type);
@@ -239,6 +241,6 @@ magic_fail(const char *error)
 
 	error_message = malloc(sizeof(char *) * (strlen(format) + strlen(error)));
 	sprintf((char *)error_message, format, error);
-	rb_raise(rb_const_get(rb_cObject, rb_intern("RuntimeError")), error_message);
+	rb_raise(rb_const_get(rb_cObject, rb_intern("RuntimeError")), "%s", error_message);
 }
 
